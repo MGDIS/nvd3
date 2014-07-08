@@ -8056,10 +8056,20 @@ nv.models.multiBarChart = function() {
         x = xAxis.tickFormat()(multibar.x()(e.point, e.pointIndex)),
         y = yAxis.tickFormat()(multibar.y()(e.point, e.pointIndex)),
         content = tooltip(e.series.key, x, y, e, chart);
-
-    nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's', null, offsetElement);
+	
+	// We can't trust the offsetElement.offsetTop in Firefox sometimes it's a very high value.
+    var containerPosition = $("#"+offsetElement.id).position();
+    var containerSVG = offsetElement.getElementsByTagName("svg")[0].getBBox();
+    
+    // top position of the bottom of the tooltip is
+    // absolute position of the bottom of the main container is the page, minus
+    // the SVG container height, plus the top position of the bar
+    // plus, 20 pix offset of margin
+    e.pos[1] = containerPosition.top - containerSVG.height + e.pos[1] - 20;
+    
+    nv.tooltip.show(e.pos, content, e.value < 0 ? 'n' : 's', null, offsetElement);
   };
-
+	
   //============================================================
 
 
